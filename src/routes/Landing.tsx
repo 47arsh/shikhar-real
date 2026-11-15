@@ -32,9 +32,10 @@ export function Landing() {
               Say something <em>nobody</em> else said.
             </h1>
             <p className="lede">
-              Open prompts, no options, no multiple choice. Rarer answers take you
-              higher up a Himalayan peak — common ones slide you down the scree.
-              Seven questions to the summit, or climb endlessly with friends.
+              Open prompts, no options, no multiple choice. Type anything real — a
+              fruit, a film, a feeling — and the rarer it is, the higher you climb a
+              Himalayan peak. Common answers slide you down the scree. Seven
+              questions to the summit, or climb endlessly with friends.
             </p>
             <div className="cta-row">
               <Link className="btn btn-solid" to="/climb">
@@ -83,8 +84,9 @@ export function Landing() {
             <span className="step-no">01</span>
             <h3>Read the prompt</h3>
             <p>
-              “Name a hill station.” “Name a thing you’d pack.” No options — type
-              whatever is true. If it exists, it counts.
+              “Name a fruit.” “Name a thing you’d never lend.” No options — type
+              whatever is true. The questions roam anywhere; the mountain is just
+              where you’re climbing.
             </p>
           </li>
           <li className="step">

@@ -85,8 +85,11 @@ describe('indian common knowledge caps', () => {
 })
 
 describe('answer hygiene', () => {
-  const spicePrompt = promptById('p16')!
-  const animalPrompt = promptById('p06')!
+  const byText = (needle: string) =>
+    PROMPTS.find((prompt) => prompt.text.includes(needle))!
+  const spicePrompt = byText('spice you would recognise')
+  const animalPrompt = byText('animal you would never')
+  const bathroomPrompt = byText('in a bathroom')
 
   it('accepts real, open answers', () => {
     expect(validateAnswer('Hing', spicePrompt).ok).toBe(true)
@@ -103,7 +106,8 @@ describe('answer hygiene', () => {
   it('rejects the question as an answer', () => {
     expect(validateAnswer('spice', spicePrompt).ok).toBe(false)
     expect(validateAnswer('spices', spicePrompt).ok).toBe(false)
-    expect(validateAnswer('peak', promptById('p01')!).ok).toBe(false)
+    expect(validateAnswer('peak', promptById('p51')!).ok).toBe(false)
+    expect(validateAnswer('bathroom', bathroomPrompt).ok).toBe(false)
   })
 
   it('rejects links, numbers and essays', () => {
@@ -139,5 +143,14 @@ describe('daily climb', () => {
     for (const word of ['temple', 'god', 'pray', 'festival', 'shrine', 'yatra']) {
       expect(text).not.toContain(word)
     }
+  })
+
+  it('roams well beyond the mountain', () => {
+    const categories = new Set(PROMPTS.map((prompt) => prompt.category))
+    expect(categories.size).toBeGreaterThanOrEqual(25)
+    const trail = PROMPTS.filter((prompt) =>
+      /himalaya|mountain|trek|hill station|glacier|treeline|peak/i.test(prompt.text),
+    )
+    expect(trail.length / PROMPTS.length).toBeLessThan(0.12)
   })
 })

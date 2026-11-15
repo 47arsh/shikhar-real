@@ -118,6 +118,9 @@ export function validateAnswer(raw: string, prompt: Prompt): Validation {
   if (promptWords.length === 1 && key === promptWords[0]) {
     return fail('That is the question, not the answer.')
   }
+  if (promptWords.some((word) => word.length >= 5 && key === word)) {
+    return fail('That is the question, not the answer.')
+  }
 
   return { ok: true, display, key }
 }
