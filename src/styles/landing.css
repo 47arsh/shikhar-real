@@ -183,113 +183,6 @@
   mask-image: linear-gradient(180deg, transparent 0%, #000 16%);
 }
 
-/* ---------- postcard ---------- */
-
-.postcard {
-  --tilt: -3deg;
-  position: relative;
-  width: min(330px, 100%);
-  margin: 0;
-  padding: 18px 22px 16px;
-  background: var(--paper);
-  border: 1px solid var(--line-strong);
-  border-radius: 6px;
-  box-shadow: var(--shadow);
-  transform: rotate(var(--tilt));
-  animation: card-float 10s ease-in-out infinite;
-}
-
-@keyframes card-float {
-  0%,
-  100% {
-    transform: rotate(var(--tilt)) translateY(0);
-  }
-  50% {
-    transform: rotate(var(--tilt)) translateY(-7px);
-  }
-}
-
-.postcard-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.postcard-brand {
-  font-family: var(--font-dev);
-  font-size: 19px;
-  line-height: 1;
-}
-
-.postcard-stamp {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 50px;
-  border: 1px dashed var(--rhodo);
-  border-radius: 3px;
-  color: var(--rhodo);
-  padding: 6px;
-}
-
-.postcard-prompt {
-  margin-top: 16px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  line-height: 1.45;
-  color: var(--ink-faint);
-}
-
-.postcard-alt {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.postcard-num {
-  font-family: var(--font-display);
-  font-size: 52px;
-  font-weight: 560;
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-}
-
-.postcard-unit {
-  font-size: 13px;
-  color: var(--ink-soft);
-}
-
-.postcard-answer {
-  margin-top: 8px;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 22px;
-  line-height: 1.15;
-}
-
-.postcard-tier {
-  margin-top: 12px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--rhodo);
-}
-
-.postcard-foot {
-  margin-top: 16px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--line);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  color: var(--ink-faint);
-}
-
 /* ---------- how it works ---------- */
 
 .how {
@@ -568,10 +461,6 @@
 }
 
 @media (max-width: 560px) {
-  .postcard {
-    width: min(300px, 100%);
-  }
-
   .landing-scene {
     height: 280px;
   }

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import '../styles/postcard.css'
 
 interface PostcardProps {
   altitude: number
