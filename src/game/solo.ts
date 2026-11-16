@@ -95,7 +95,7 @@ export function climbReducer(
 
       const rounds = [...state.rounds, round]
       const best = state.best && state.best.points >= round.points ? state.best : round
-      const finished = rounds.length >= total || altitude >= SUMMIT_METRES
+      const finished = altitude >= SUMMIT_METRES
 
       return {
         ...state,
