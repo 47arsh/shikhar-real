@@ -1,13 +1,11 @@
 import {
   START_OXYGEN,
   SUMMIT_METRES,
+  TIMEOUT_REACTION,
   type JudgeResult,
   type Prompt,
 } from '../../shared/game'
-import { altitudeOutcome, oxygenAfter } from '../../shared/scoring'
-
-export const REST_METRES = 150
-export const REST_OXYGEN = 2
+import { answerOutcome } from '../../shared/scoring'
 
 export type ClimbPhase = 'base' | 'asking' | 'reveal' | 'summit'
 
@@ -47,8 +45,6 @@ export const initialClimb: ClimbState = {
   best: null,
 }
 
-export const TIMEOUT_REACTION = 'The clock took that one. It does that.'
-
 export function climbReducer(
   state: ClimbState,
   action: ClimbAction,
@@ -67,16 +63,12 @@ export function climbReducer(
     case 'answer': {
       const { prompt, result } = action
       const points = result?.points ?? 0
-      const outcome = altitudeOutcome(points, state.altitude)
-      let altitude = Math.min(SUMMIT_METRES, state.altitude + outcome.net)
-      let oxygen = oxygenAfter(state.oxygen, points)
-      let rest = 0
-
-      if (oxygen === 0 && state.rounds.length + 1 < total) {
-        rest = Math.min(REST_METRES, altitude)
-        altitude -= rest
-        oxygen = REST_OXYGEN
-      }
+      const outcome = answerOutcome(
+        points,
+        state.altitude,
+        state.oxygen,
+        state.rounds.length + 1 < total,
+      )
 
       const round: ClimbRound = {
         prompt,
@@ -85,7 +77,7 @@ export function climbReducer(
         label: result?.label ?? 'No answer',
         gain: outcome.gain,
         slide: outcome.slide,
-        rest,
+        rest: outcome.rest,
         timedOut: result === null,
         hits: result?.hits ?? null,
         source: result?.source ?? null,
@@ -95,13 +87,13 @@ export function climbReducer(
 
       const rounds = [...state.rounds, round]
       const best = state.best && state.best.points >= round.points ? state.best : round
-      const finished = altitude >= SUMMIT_METRES
+      const finished = outcome.altitude >= SUMMIT_METRES
 
       return {
         ...state,
         phase: finished ? 'summit' : 'reveal',
-        altitude,
-        oxygen,
+        altitude: outcome.altitude,
+        oxygen: outcome.oxygen,
         rounds,
         best,
       }

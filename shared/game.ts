@@ -20,6 +20,9 @@ export const SUMMIT_METRES = 7000
 export const PROMPT_SECONDS = 25
 export const DAILY_PROMPTS = 7
 export const START_OXYGEN = 3
+export const REST_METRES = 150
+export const REST_OXYGEN = 2
+export const TIMEOUT_REACTION = 'The clock took that one. It does that.'
 export const MAX_PLAYERS = 8
 export const ROOM_CODE_LENGTH = 4
 
