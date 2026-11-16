@@ -1,19 +1,13 @@
 import { useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  ALTITUDE_BANDS,
-  PROMPT_SECONDS,
-  SUMMIT_METRES,
-  bandFor,
-} from '../../shared/game'
+import { PROMPT_SECONDS, SUMMIT_METRES, bandFor } from '../../shared/game'
 import type { ClimbRound } from '../game/solo'
 import { useSoloClimb } from '../game/useSoloClimb'
 import { useTween } from '../game/useTween'
 import { ClimbHud } from '../components/ClimbHud'
-import { ClimbScene } from '../components/ClimbScene'
 import { Logo } from '../components/Logo'
+import { MountainScene } from '../components/MountainScene'
 import { Postcard } from '../components/Postcard'
-import { Uncle } from '../components/Uncle'
 import '../styles/game.css'
 
 const dateLabel = new Intl.DateTimeFormat('en-IN', {
@@ -55,7 +49,7 @@ export function Climb() {
   const climb = useSoloClimb()
   const { state } = climb
   const shownAltitude = useTween(state.altitude)
-  const bandIndex = Math.max(0, ALTITUDE_BANDS.indexOf(bandFor(shownAltitude)))
+  const moving = Math.abs(state.altitude - shownAltitude) > 1
   const [copied, setCopied] = useState(false)
 
   const share = async () => {
@@ -72,65 +66,57 @@ export function Climb() {
   }
 
   return (
-    <div className="climb">
-      <aside className="climb-stage" data-band={bandIndex}>
-        <div className="stage-top">
-          <Logo />
-          <span className="stage-tag">
-            {state.phase === 'summit' ? 'Summit' : state.phase === 'base' ? 'Base camp' : 'Solo climb'}
-          </span>
-        </div>
-        <ClimbScene altitude={shownAltitude} />
+    <main className="climb">
+      <MountainScene altitude={shownAltitude} moving={moving} />
+
+      <header className="climb-top">
+        <Logo />
         <ClimbHud
           altitude={shownAltitude}
           oxygen={state.oxygen}
           rounds={state.rounds}
           total={climb.total}
         />
-      </aside>
+      </header>
 
-      <section className="climb-panel">
-        <div className="panel-inner anim-rise" key={`${state.phase}-${state.rounds.length}`}>
+      <div className="card-zone">
+        <section
+          className={`climb-card${state.phase === 'summit' ? ' is-wide' : ''}`}
+          data-phase={state.phase}
+        >
+        <div className="card-inner anim-rise" key={`${state.phase}-${state.rounds.length}`}>
           {state.phase === 'base' && (
             <>
               <p className="eyebrow">{dateLabel} · base camp</p>
-              <h1 className="panel-title">Up you go.</h1>
-              <p className="panel-lede">
+              <h1 className="card-title">Up you go.</h1>
+              <p className="card-lede">
                 Seven open prompts, twenty-five seconds each. Type anything real — a
-                fruit, a film, a place, a feeling — and the rarer it is in the world,
-                the higher you climb.
+                fruit, a film, a place, a feeling — and the rarer it is, the higher you
+                climb.
               </p>
 
-              <div className="uncle-row uncle-greet">
-                <Uncle size={54} />
-                <div className="uncle-copy">
-                  <p className="uncle-name">Bhuwan uncle</p>
-                  <p className="uncle-line">
-                    “I have heard Everest too many times today, beta. Surprise me.”
-                  </p>
-                </div>
-              </div>
+              <blockquote className="trail-quote">
+                <p>“I have heard Everest too many times today, beta. Surprise me.”</p>
+                <cite>Bhuwan uncle, at the tea stall</cite>
+              </blockquote>
 
               <ul className="rule-list">
                 <li>
                   <span className="rule-no">01</span>
                   <p>
-                    <strong>Anything in the world counts.</strong> No options, no
-                    lists. If it is real, it is an answer.
+                    <strong>Anything counts.</strong> No options, no lists.
                   </p>
                 </li>
                 <li>
                   <span className="rule-no">02</span>
                   <p>
-                    <strong>Rarer climbs higher.</strong> We check how often the world
-                    writes your answer. Crowd answers slide you down the scree.
+                    <strong>Rarer climbs higher.</strong> Crowd answers slide down.
                   </p>
                 </li>
                 <li>
                   <span className="rule-no">03</span>
                   <p>
-                    <strong>Watch the air.</strong> Every prompt burns a canister. Run
-                    dry and you drop a camp to breathe.
+                    <strong>Watch the air.</strong> Run dry and you drop a camp.
                   </p>
                 </li>
               </ul>
@@ -139,22 +125,22 @@ export function Climb() {
                 <div className="return-card">
                   <p className="return-kicker">You climbed today</p>
                   <p className="return-line">
-                    <strong>{climb.saved.last.toLocaleString('en-IN')} m</strong> last time
-                    <span>·</span> best{' '}
+                    <strong>{climb.saved.last.toLocaleString('en-IN')} m</strong> last
+                    time <span>·</span> best{' '}
                     <strong>{climb.saved.best.toLocaleString('en-IN')} m</strong>
                   </p>
                 </div>
               )}
 
-              <div className="panel-actions">
-                <button className="btn btn-solid panel-cta" onClick={climb.start}>
+              <div className="card-actions">
+                <button className="btn btn-solid" onClick={climb.start}>
                   {climb.saved ? 'Climb again' : 'Rope up'} <span className="arrow">→</span>
                 </button>
-                <Link className="panel-back" to="/">
+                <Link className="card-back" to="/">
                   Not today
                 </Link>
               </div>
-              <p className="panel-note">
+              <p className="card-note">
                 Same seven prompts for everyone in India today. No login.
               </p>
             </>
@@ -162,7 +148,7 @@ export function Climb() {
 
           {state.phase === 'asking' && climb.activePrompt && (
             <>
-              <div className="ask-top">
+              <div className="card-top">
                 <p className="eyebrow">
                   Prompt {state.rounds.length + 1} of {climb.total}
                 </p>
@@ -179,7 +165,7 @@ export function Climb() {
                 </div>
               </div>
 
-              <p className="ask-kicker">Anything in the world counts</p>
+              <p className="kicker">Anything in the world counts</p>
               <h2 className="ask-prompt">{climb.activePrompt.text}</h2>
 
               <form className="ask-form" onSubmit={climb.onSubmit}>
@@ -220,16 +206,16 @@ export function Climb() {
                 </div>
               </form>
 
-              <p className="ask-band">
-                You are at {Math.round(state.altitude).toLocaleString('en-IN')} m ·{' '}
-                {bandFor(state.altitude).name}
-              </p>
+              <div className="card-foot">
+                <span>{bandFor(state.altitude).name}</span>
+                <span>Summit 7,000 m</span>
+              </div>
             </>
           )}
 
           {state.phase === 'reveal' && climb.round && (
             <>
-              <div className="reveal-head">
+              <div className="card-top">
                 <p className="eyebrow">
                   Prompt {state.rounds.length} of {climb.total}
                 </p>
@@ -258,26 +244,14 @@ export function Climb() {
                 </p>
               )}
 
-              <div className="uncle-row">
-                <Uncle
-                  size={62}
-                  mood={
-                    climb.round.points >= 55
-                      ? 'happy'
-                      : climb.round.timedOut
-                        ? 'wince'
-                        : 'idle'
-                  }
-                />
-                <div className="uncle-copy">
-                  <p className="uncle-name">Bhuwan uncle</p>
-                  <p className="uncle-line">{climb.round.reaction}</p>
-                </div>
-              </div>
+              <blockquote className="trail-quote reveal-quote">
+                <p>“{climb.round.reaction}”</p>
+                <cite>Bhuwan uncle</cite>
+              </blockquote>
 
               <p className="reveal-source">{sourceLine(climb.round)}</p>
 
-              <button className="btn btn-solid panel-cta" onClick={climb.next}>
+              <button className="btn btn-solid card-cta" onClick={climb.next}>
                 {state.rounds.length >= climb.total ? 'See the summit' : 'Next prompt'}{' '}
                 <span className="arrow">→</span>
               </button>
@@ -286,83 +260,89 @@ export function Climb() {
 
           {state.phase === 'summit' && (
             <>
-              <p className="eyebrow">Summit report · {dateLabel}</p>
+              <div className="card-top">
+                <p className="eyebrow">Summit report · {dateLabel}</p>
+                <p className="summit-band">
+                  {bandFor(state.altitude).name} ·{' '}
+                  {state.altitude >= SUMMIT_METRES ? 'the flag is yours' : 'climbed'}
+                </p>
+              </div>
               <h1 className="summit-title">
-                {state.altitude.toLocaleString('en-IN')} m
+                {state.altitude.toLocaleString('en-IN')}
+                <span> m</span>
               </h1>
-              <p className="summit-sub">
-                {bandFor(state.altitude).name} ·{' '}
-                {state.altitude >= SUMMIT_METRES ? 'the flag is yours' : 'climbed'}
-              </p>
 
-              <div className="summit-card">
-                <Postcard
-                  altitude={state.altitude}
-                  answer={state.best?.answer || 'The mountain'}
-                  tier={state.best?.label || 'Trekker'}
-                  prompt={state.best?.prompt.text}
-                  tilt={-3}
-                />
+              <div className="summit-grid">
+                <div className="summit-postcard">
+                  <Postcard
+                    altitude={state.altitude}
+                    answer={state.best?.answer || 'The mountain'}
+                    tier={state.best?.label || 'Trekker'}
+                    prompt={state.best?.prompt.text}
+                    tilt={-3}
+                  />
+                </div>
+
+                <div className="summit-side">
+                  <div className="summit-stats">
+                    <div>
+                      <span>Best answer</span>
+                      <strong>{state.best?.points ?? 0} pts</strong>
+                    </div>
+                    <div>
+                      <span>Air left</span>
+                      <strong>{state.oxygen} / 5</strong>
+                    </div>
+                    <div>
+                      <span>Prompts</span>
+                      <strong>
+                        {state.rounds.length} / {climb.total}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <blockquote className="trail-quote">
+                    <p>“{summitLine(state.altitude)}”</p>
+                    <cite>Bhuwan uncle</cite>
+                  </blockquote>
+
+                  <ol className="trail-log">
+                    {state.rounds.map((round, index) => (
+                      <li key={round.prompt.id}>
+                        <span className="log-no">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="log-answer">
+                          {round.timedOut ? '—' : round.answer}
+                        </span>
+                        <span className={`log-points points-${round.points}`}>
+                          {round.points}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               </div>
 
-              <div className="summit-stats">
-                <div>
-                  <span>Best answer</span>
-                  <strong>{state.best?.points ?? 0} pts</strong>
-                </div>
-                <div>
-                  <span>Air left</span>
-                  <strong>{state.oxygen} / 5</strong>
-                </div>
-                <div>
-                  <span>Prompts</span>
-                  <strong>
-                    {state.rounds.length} / {climb.total}
-                  </strong>
-                </div>
-              </div>
-
-              <div className="uncle-row summit-uncle">
-                <Uncle size={58} mood="happy" />
-                <div className="uncle-copy">
-                  <p className="uncle-name">Bhuwan uncle</p>
-                  <p className="uncle-line">{summitLine(state.altitude)}</p>
-                </div>
-              </div>
-
-              <ol className="trail-log">
-                {state.rounds.map((round, index) => (
-                  <li key={round.prompt.id}>
-                    <span className="log-no">{String(index + 1).padStart(2, '0')}</span>
-                    <span className="log-prompt">{round.prompt.text}</span>
-                    <span className="log-answer">
-                      {round.timedOut ? '—' : round.answer}
-                    </span>
-                    <span className={`log-points points-${round.points}`}>
-                      {round.points}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-
-              <div className="summit-actions">
+              <div className="card-actions summit-actions">
                 <button className="btn btn-solid" onClick={share}>
                   {copied ? 'Copied!' : 'Copy the postcard'}
                 </button>
                 <button className="btn btn-ghost" onClick={climb.start}>
                   Climb again
                 </button>
-                <Link className="panel-back" to="/">
+                <Link className="card-back" to="/">
                   Back to base
                 </Link>
               </div>
-              <p className="panel-note">
+              <p className="card-note">
                 Come back tomorrow — same mountain, new prompts.
               </p>
             </>
           )}
         </div>
-      </section>
-    </div>
+        </section>
+      </div>
+
+      <p className="scene-credit">Himalaya · photo via Unsplash</p>
+    </main>
   )
 }
