@@ -79,6 +79,19 @@ type Member = { code: string; playerId: string }
 const memberOf = (socket: { data: Record<string, unknown> }) =>
   socket.data.member as Member | undefined
 
+function bindMember(
+  socket: { data: Record<string, unknown>; join: (room: string) => unknown; leave: (room: string) => unknown },
+  member: Member,
+) {
+  const previous = memberOf(socket)
+  if (previous && (previous.code !== member.code || previous.playerId !== member.playerId)) {
+    void socket.leave(previous.code)
+    rooms.disconnect(previous.code, previous.playerId)
+  }
+  socket.data.member = member
+  void socket.join(member.code)
+}
+
 io.on('connection', (socket) => {
   socket.emit('mountain:hello', { ok: true })
 
@@ -88,8 +101,7 @@ io.on('connection', (socket) => {
       ack?.({ ok: false, error: result.error })
       return
     }
-    socket.data.member = { code: result.code, playerId: result.playerId }
-    void socket.join(result.code)
+    bindMember(socket, { code: result.code, playerId: result.playerId })
     ack?.({ ok: true, code: result.code, playerId: result.playerId, state: result.state })
   })
 
@@ -101,8 +113,7 @@ io.on('connection', (socket) => {
         ack?.({ ok: false, error: result.error })
         return
       }
-      socket.data.member = { code: result.code, playerId: result.playerId }
-      void socket.join(result.code)
+      bindMember(socket, { code: result.code, playerId: result.playerId })
       ack?.({
         ok: true,
         code: result.code,
@@ -120,11 +131,10 @@ io.on('connection', (socket) => {
         ack?.({ ok: false, error: result.error })
         return
       }
-      socket.data.member = {
-        code: String(payload?.code ?? '').trim().toUpperCase(),
+      bindMember(socket, {
+        code: result.state.code,
         playerId: String(payload?.playerId),
-      }
-      void socket.join(socket.data.member.code)
+      })
       ack?.({ ok: true, state: result.state })
     },
   )
@@ -159,6 +169,18 @@ io.on('connection', (socket) => {
       return
     }
     ack?.(rooms.again(member.code, member.playerId))
+  })
+
+  socket.on('room:leave', (_payload: unknown, ack?: Function) => {
+    const member = memberOf(socket)
+    if (!member) {
+      ack?.({ ok: true })
+      return
+    }
+    void socket.leave(member.code)
+    socket.data.member = undefined
+    rooms.leave(member.code, member.playerId)
+    ack?.({ ok: true })
   })
 
   socket.on('disconnect', () => {

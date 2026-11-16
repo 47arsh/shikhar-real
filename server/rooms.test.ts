@@ -195,6 +195,21 @@ describe('RoomManager', () => {
     )
   })
 
+  it('removes players who leave and deletes empty rooms', () => {
+    const { manager, last } = setup()
+    const host = manager.create('Asha')
+    if (!host.ok) throw new Error('setup failed')
+    const guest = manager.join(host.code, 'Bilal')
+    if (!guest.ok) throw new Error('setup failed')
+
+    manager.leave(host.code, host.playerId)
+    expect(last().hostId).toBe(guest.playerId)
+    expect(last().players).toHaveLength(1)
+
+    manager.leave(host.code, guest.playerId)
+    expect(manager.size()).toBe(0)
+  })
+
   it('pauses when everyone drops and resumes on rejoin', async () => {
     const { manager, last } = setup()
     const host = manager.create('Asha')

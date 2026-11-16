@@ -18,6 +18,9 @@ export function Landing() {
           <a className="nav-link" href="#route">
             The route
           </a>
+          <Link className="nav-link" to="/rooms">
+            Live rooms
+          </Link>
           <Link className="btn btn-solid btn-sm" to="/climb">
             Today’s climb
           </Link>
@@ -41,9 +44,9 @@ export function Landing() {
               <Link className="btn btn-solid" to="/climb">
                 Start today’s climb <span className="arrow">→</span>
               </Link>
-              <a className="btn btn-ghost" href="#how">
-                How it works
-              </a>
+              <Link className="btn btn-ghost" to="/rooms">
+                Climb with friends
+              </Link>
             </div>
             <p className="cta-meta">
               <span>7 prompts</span>

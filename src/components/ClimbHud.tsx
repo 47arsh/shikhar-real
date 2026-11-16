@@ -1,10 +1,9 @@
 import { bandFor } from '../../shared/game'
-import type { ClimbRound } from '../game/solo'
 
 interface ClimbHudProps {
   altitude: number
   oxygen: number
-  rounds: ClimbRound[]
+  rounds: { points: number }[]
   total: number
 }
 

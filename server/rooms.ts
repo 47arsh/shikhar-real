@@ -366,6 +366,35 @@ export class RoomManager {
     this.publish(room)
   }
 
+  leave(rawCode: unknown, playerId: string) {
+    const room = this.getRoom(rawCode)
+    if (!room) return
+    if (!room.players.has(playerId)) return
+
+    room.players.delete(playerId)
+
+    if (room.players.size === 0) {
+      this.clearTimers(room)
+      this.clearExpiry(room)
+      this.rooms.delete(room.code)
+      return
+    }
+
+    if (room.hostId === playerId) {
+      const next =
+        [...room.players.values()].find((candidate) => candidate.connected) ??
+        room.players.values().next().value
+      if (next) room.hostId = next.id
+    }
+
+    if (![...room.players.values()].some((candidate) => candidate.connected)) {
+      this.pause(room)
+      this.armExpiry(room)
+    }
+
+    this.publish(room)
+  }
+
   size(): number {
     return this.rooms.size
   }
